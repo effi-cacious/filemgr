@@ -1,0 +1,135 @@
+#!/bin/bash
+
+  # Sleep Interval in seconds
+  INTERVAL=30 # default 30
+  # define at which point the battery charge is critical in remaining minutes
+  # high: low battery but not urgent
+  # low: Urgent - very low battery
+  # critical: initiating emergency shutdown
+  THRESH_MINHIGH=30 # default 30 minutes
+  THRESH_MINLOW=15 # default 15 minutes
+  THRESH_MINWARNING=10 # default 10 minutes
+  THRESH_MINCRITICAL=5 # default 5 minutes
+  #
+  # high: battery is considered full
+  # low: low battery but not urgent
+  # critical: initiating emergency shutdown
+  THRESH_BATLOW=50 # default 50%
+  THRESH_BATWARNING=25 # default 25%
+  THRESH_BATCRITICAL=3 # default 3%
+
+  # Colors for output
+  ORANGE="\033[0;33m"
+  RED="\033[0;31m"
+  RESET="\033[0m"
+
+# this function sends a notification via notify-send
+# Required PARAMETERS:
+# 1) Minutes left
+# 2) Urgency Level: critical, normal = default
+# 3) Additional Message
+#
+function sendNotification() {
+  MINLEFT=$(( $1 + 0 ))
+  HEADER="Battery Event"
+  MSG="${MINLEFT} minute";
+
+  case "${2,,}" in
+    'critical')
+      URGENCY='critical'
+      TIMER=5000 ;;
+    *)
+      URGENCY="normal"
+      TIMER=3000 ;;
+  esac
+  [[ ! -z $3 ]] && ADDMSG="\n---\n$3"
+  echo "$3"
+  # get the right wording for the notification on a critical batter level
+  if [[ ${MINLEFT} -gt 1 ]]; then MSG="${MSG}s"; fi
+
+  # determining the urgency based on how many minutes are left
+  # Battery Low: < 15 minutes left
+  # Battery Warning: < 10 minutes left
+  # Battery Critical: < 5 minutes left
+  if [[ ${MINLEFT} -le ${THRESH_MINLOW} ]] && [[ ${MINLEFT} -gt ${THRESH_MINWARNING} ]]; then
+      MSG="Under the current load you have ${MSG} left.${ADDMSG}"
+  elif [[ ${MINLEFT} -le ${THRESH_MINWARNING} ]]; then
+      TIMER=5000
+      MSG="Find a power source!\n\nUnder the current load you have ${MSG} left.${ADDMSG}"
+      if [[ ${MINLEFT} -le ${THRESH_MINCRITICAL} ]]; then
+        MSG="CRITICAL: The emergency shutdown has been initiated.\n${MSG}"
+        URGENCY=critical
+      fi
+  else
+    MSG="The battery has ${MSG} left.${ADDMSG}"
+  fi
+  notify-send -u "${URGENCY}" -t ${TIMER} "${HEADER}" "${MSG}"
+}
+
+
+# this function takes the current battery level reading and time left and returns it in a new format
+# the function also determines wether to send an alert if the battery level or remaining time under the current load is low or critical
+# arguments:
+# 1) Battery Level as Integer
+# 2) Time Left as String in format: HH:MM
+function getStatus() {
+
+  local LVL=$(($1+0))
+  local LEFT="$2"
+
+  local HRSLEFT=$(( $(echo "${LEFT}" | sed 's/:[[:digit:]]\+$//g') + 0 ))
+  local MINLEFT=$(( $(echo "${LEFT}" | sed 's/^[[:digit:]]\+:0\?//g') + 0 ))
+  [[ $HRSLEFT -gt 0 ]] && MINLEFT=$(( (${HRSLEFT} * 60) +${MINLEFT} ))
+
+  # If the battery capacity is below a certain threshhold but not critical
+  # check the time left and if necessary create warning to the user
+  if [[ ${LVL} -le ${THRESH_BATLOW} ]] && [[ ${LVL} -gt ${THRESH_BATCRITICAL} ]]; then
+
+    # The time left is low. The user can continue to work but should pay attention to the battery level
+    if [[ ${MINLEFT} -le ${THRESH_MINLOW} ]] && [[ ${MINLEFT} -gt ${THRESH_MINWARNING} ]]; then
+      echo -e "${ORANGE}${LVL}% (${LEFT})${RESET}"
+    # there is little time left for the user. Either poweroff the system or find a power source
+    elif [[ ${MINLEFT} -le ${THRESH_MINWARNING} ]] && [[ ${MINLEFT} -gt ${THRESH_MINCRITICAL} ]]; then
+      echo -e "${RED}${LVL}% (${LEFT})${RESET}"
+      $(sendNotification ${MINLEFT})
+    # the battery level is critical. start the emergency shutdown procedure.
+    elif [[ ${MINLEFT} -le ${THRESH_MINCRITICAL} ]]; then
+      echo -e "${RED}${LVL}% (${LEFT})${RESET}"
+      $(sendNotification ${MINLEFT} "critical")
+      # plus initiate shutdown
+
+    # the battery is low but there is still plenty of capacity left, just return the values
+    else
+      echo -e "${LVL}% (${LEFT})"
+    fi
+
+  elif [[ ${LVL} -le ${THRESH_BATCRITICAL} ]]; then
+    # if the battery is critically low
+    #   - throw critical warning
+    #   - initiate shutdown
+    echo -e "${RED}${LVL}% (${LEFT})${RESET}"
+    $(sendNotification ${MINLEFT} "critical")
+    # plus initiate shutdown
+  else
+    echo -e "${LVL}% (${LEFT})"
+  fi
+  return 0
+}
+
+# get thecurrent values from the system and generate the appropriate output as string
+function getLevel() {
+
+  # get system information
+  local LVL=$(cat /sys/class/power_supply/BAT0/capacity)
+  local TLEFT=$(acpi -b | awk '{print $5}' | sed 's/:[[:digit:]]\+$//g')
+  local STATUS=$(acpi -b | awk '{print $3}' | sed 's/,$//g')
+
+  # check if battery is discharging and how low the battery is
+  if [ "${STATUS}" == "Discharging" ]; then
+    echo "$(getStatus ${LVL} ${TLEFT})"
+  else
+    echo "${LVL}% (+AC)"
+  fi
+}
+
+echo -e "$(getLevel)"

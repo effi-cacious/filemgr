@@ -24,6 +24,11 @@ if __name__ == "__main__":
     debugging("1x00001")
 
   #  Get string from user
+
+  # check if the user provided a string with the script call
+  # if not, get the code from the user as input
+  
+  get codes from file 
   codes = []
   linesFromFile = get_lines_from_file(msgDatabase, "1x")
   for line in linesFromFile:

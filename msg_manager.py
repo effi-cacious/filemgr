@@ -24,8 +24,17 @@ if __name__ == "__main__":
     debugging("1x00001")
 
   #  Get string from user
-  linesFromFile = get_lines_from_file(msgDatabase, "1x00001")
-  print(linesFromFile)
+  codes = []
+  linesFromFile = get_lines_from_file(msgDatabase, "1x")
+  for line in linesFromFile:
+    line = line.split("|")
+    codes.append(line[0])
+
+  # get max code and increment by 1
+  maxCode = max(codes)
+  maxCode = int(maxCode[-5:len(maxCode)])
+  maxCode += 1
+  print_out("Found line: " + str(maxCode))
 
   # search for string in file
 
@@ -42,4 +51,4 @@ if __name__ == "__main__":
  # print(linesFromFile)
 
 
-    #debugging("3x00001")
+    #debugging("3x00001")

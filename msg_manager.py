@@ -5,7 +5,7 @@
 
 import argparse
 
-def parse_script_args():
+def parse_script_args(ret="x"):
 #  Get parameters and arguments from call to script
 #
 #  Returns:
@@ -17,6 +17,9 @@ def parse_script_args():
     help="The message to be stored in the message DB")
   parser.add_argument('-m', '--msgcode', nargs='?', type=int, choices=range(0,6) ,default=0,
     help="Provide a message code:\n0 = general\n1 = error\n2 = warning\n3 = debug\n\n5 = success\nDefault = 0")
+  if ret == "h":
+    return parser.print_help()
+
   return parser.parse_args()
 
 if __name__ == "__main__":
@@ -25,7 +28,19 @@ if __name__ == "__main__":
 
   usrResponse = False
   # get infos from user
-  while not usrResponse:
+  while not usrResponse == "y":
+
+    if usrResponse == "n":
+      argsh = parse_script_args("h")
+      print("\n\n{0}\n\n".format(argsh))
+      usrCode = input("Please choose a message code (Default: {0} = {1}): ".format(args.msgcode, codeMeaning))
+      usrMessage = input("Please change your message here (Default: {0} ): ".format(args.MESSAGE))
+
+      if not usrCode == "" or usrCode in range (0,5,1):
+        args.msgcode = int(usrCode)
+      if not usrMessage == "":
+        args.MESSAGE = usrMessage
+
 
     match args.msgcode:
       case 1: codeMeaning="error"
@@ -38,14 +53,18 @@ if __name__ == "__main__":
     if not args.MESSAGE:
       args.MESSAGE = input("Please type in your message text: \n")
     print("Your message:\n{0}".format(args.MESSAGE))
-    usr = input("Are values correct? (y)es | no")
+    usr = input("Are values correct? (y)es | no\t")
 
-    if usr[0].lower() == "y":
-      usrResponse = True
+    match usr[0].lower():
+      case "y":
+        print("breaking here")
+        usrResponse = "y"
+      case "n": usrResponse = "n"
+      case _: usrResponse = False
 
-    s = set(["c","m","a"])
+#    s = set(["c","m","a"])
 
-    usrInput = input("")
+ #   usrInput = input("")
 
 
   # save infos to DB

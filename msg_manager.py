@@ -4,6 +4,10 @@
 #from setup import *
 
 import argparse
+from os import path
+from debugging import *
+
+debug = 0
 
 def parse_script_args(ret="x"):
 #  Get parameters and arguments from call to script
@@ -49,59 +53,44 @@ if __name__ == "__main__":
       case 4: codeMeaning="success"
       case _: codeMeaning="undefined"
 
-    print("Message Code: {0} i.e. {1}".format(args.msgcode, codeMeaning))
+    print_out("Message Code: {0} i.e. {1}".format(args.msgcode, codeMeaning), 9)
     if not args.MESSAGE:
       args.MESSAGE = input("Please type in your message text: \n")
-    print("Your message:\n{0}".format(args.MESSAGE))
+    print_out("Your message:\n{0}".format(args.MESSAGE), 9)
     usr = input("Are values correct? (y)es | no\t")
 
     match usr[0].lower():
       case "y":
-        print("breaking here")
         usrResponse = "y"
       case "n": usrResponse = "n"
       case _: usrResponse = False
 
+  debugging("1x99009")
+  exit(0)
 #    s = set(["c","m","a"])
 
  #   usrInput = input("")
 
 
   # save infos to DB
+  msgDatabase = "./lib/messages.txt"
 
+  # check if file exists
+  if (path.exists(msgDatabase)):
+    try:
+      with open(msgDatabase, 'a') as f:
+          # file opened for writing. write to it here
+        debugging("5x00001")
+        pass
+    except IOError as x:
+      print_out ("error {0}.{1}".format(x.errno, x.strerror))
+  else:
+    debugging("1x00001")
 
-  exit (0)
-  #if args.code:
-  #  usrCode = 1
-
-
-#  msgDatabase = "./lib/messages.txt"
-#
-#  # check if file exists
-#  if (path.exists(msgDatabase)):
-#    try:
-#      with open(msgDatabase, 'a') as f:
-#          # file opened for writing. write to it here
-#        debugging("5x00001")
-#        pass
-#    except IOError as x:
-#      print_out ("error {0}.{1}".format(x.errno, x.strerror))
-#  else:
-#    debugging("1x00001")
-
-  #  Get string from user
-  while not usrCode:
-    usrCode = input("Please provide a code: ")
-
-  print("code: {0}".format(usrCode))
-
-  exit(0)
-  # check if the user provided a string with the script call
-  # if not, get the code from the user as input
 
   # get codes from file
   codes = []
-  linesFromFile = get_lines_from_file(msgDatabase, "1x")
+  linesFromFile = get_lines_from_file(msgDatabase, args.msguode + "x")
   for line in linesFromFile:
     line = line.split("|")
     codes.append(line[0])
@@ -114,9 +103,6 @@ if __name__ == "__main__":
 
   # search for string in file
 
-  # get largest number and increment by 1
-
-  # get text for message from user
 
   # print details for user to acknowledge
 

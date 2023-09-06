@@ -6,6 +6,7 @@
 import argparse
 from os import path
 from debugging import *
+from sys import stdout
 
 debug = 0
 
@@ -56,20 +57,17 @@ if __name__ == "__main__":
     print_out("Message Code: {0} i.e. {1}".format(args.msgcode, codeMeaning), 9)
     if not args.MESSAGE:
       args.MESSAGE = input("Please type in your message text: \n")
-    print_out("Your message:\n{0}".format(args.MESSAGE), 9)
+    print_out("Your message:")
+    print_out("{0}".format(args.MESSAGE), 9)
     usr = input("Are values correct? (y)es | no\t")
 
-    match usr[0].lower():
-      case "y":
-        usrResponse = "y"
-      case "n": usrResponse = "n"
-      case _: usrResponse = False
-
-  debugging("1x99009")
-  exit(0)
-#    s = set(["c","m","a"])
-
- #   usrInput = input("")
+    if usr == "":
+      usrResponse = "y"
+    else:
+      match usr[0].lower():
+        case "y": usrResponse = "y"
+        case "n": usrResponse = "n"
+        case _: usrResponse = False
 
 
   # save infos to DB
@@ -87,19 +85,42 @@ if __name__ == "__main__":
   else:
     debugging("1x00001")
 
-
-  # get codes from file
+  # get codes from file and increment highest code by one
   codes = []
-  linesFromFile = get_lines_from_file(msgDatabase, args.msguode + "x")
+  codeIdentLen = 5
+  lang = "eng"
+  linesFromFile = get_lines_from_file(msgDatabase, str(args.msgcode) + "x")
   for line in linesFromFile:
     line = line.split("|")
     codes.append(line[0])
 
   # get max code and increment by 1
-  maxCode = max(codes)
-  maxCode = int(maxCode[-5:len(maxCode)])
-  maxCode += 1
-  print_out("Found line: " + str(maxCode))
+  if not len(codes) == 0:
+    maxCode = max(codes)
+    maxCode = int(maxCode[-codeIdentLen:len(maxCode)])
+    maxCode += 1
+  else: maxCode = 1
+
+  while len(str(maxCode)) < codeIdentLen:
+    maxCode = "0" + str(maxCode)
+
+  newCode = str(args.msgcode) + "x" + str(maxCode)
+  line = newCode + "|" + args.MESSAGE + "|" + lang
+
+  with open(msgDatabase, 'a') as f:
+    if f.write(line + "\n"):
+      print_out("New code in DB: " + newCode, 5)
+    else:
+      print_out("Trying to write to Message DB file(" + msgDatabase + "). Please check and try again.")
+#    s = set(["c","m","a"])
+  exit(0)
+
+ #   usrInput = input("")
+
+
+
+
+  # get codes from file
 
   # search for string in file
 

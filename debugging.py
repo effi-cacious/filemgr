@@ -28,17 +28,17 @@ class codes:
 def print_out(msg, code = "unkown"):
 
   match str(code).lower():
-    case "error": msg =  "[" + cols.FAIL + codes.ERROR[1] + cols.ENDC + "] " + msg
-    case "1": msg =  "[" + cols.FAIL + codes.ERROR[1] + cols.ENDC + "] " + msg
-    case "warning": msg = "[" + cols.WARNING + codes.WARNING[1] + cols.ENDC + "] " + msg
-    case "2": msg = "[" + cols.WARNING + codes.WARNING[1] + cols.ENDC + "] " + msg
-    case "debug": msg = "[" + cols.OKBLUE + codes.DEBUG[1] + cols.ENDC + "] " + msg
-    case "3": msg = "[" + cols.OKBLUE + codes.DEBUG[1] + cols.ENDC + "] " + msg
-    case "success": msg = "[" + cols.OKGREEN + codes.SUCCESS[1] + cols.ENDC + "] " +msg
-    case "4": msg = "[" + cols.OKGREEN + codes.SUCCESS[1] + cols.ENDC + "] " +msg
-    case "system": msg = cols.OKCYAN + msg + cols.ENDC
-    case "9": msg = cols.OKCYAN + msg + cols.ENDC
-    case _: msg = cols.ENDC + msg
+    case "error": msg =  "[" + cols.FAIL + codes.ERROR[1] + cols.ENDC + "] " + str(msg)
+    case "1": msg =  "[" + cols.FAIL + codes.ERROR[1] + cols.ENDC + "] " + str(msg)
+    case "warning": msg = "[" + cols.WARNING + codes.WARNING[1] + cols.ENDC + "] " + str(msg)
+    case "2": msg = "[" + cols.WARNING + codes.WARNING[1] + cols.ENDC + "] " + str(msg)
+    case "debug": msg = "[" + cols.OKBLUE + codes.DEBUG[1] + cols.ENDC + "] " + str(msg)
+    case "3": msg = "[" + cols.OKBLUE + codes.DEBUG[1] + cols.ENDC + "] " + str(msg)
+    case "success": msg = "[" + cols.OKGREEN + codes.SUCCESS[1] + cols.ENDC + "] " + str(msg)
+    case "4": msg = "[" + cols.OKGREEN + codes.SUCCESS[1] + cols.ENDC + "] " + str(msg)
+    case "system": msg = cols.OKCYAN + str(msg) + cols.ENDC
+    case "9": msg = cols.OKCYAN + str(msg) + cols.ENDC
+    case _: msg = cols.ENDC + str(msg)
 
   print(msg)
 ######

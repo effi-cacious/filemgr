@@ -11,15 +11,49 @@
 
 
 # import debugging
-
+from debugging import *
 # argparse
 
-# Source: path from which to copy files from
-# Target: path to which to copy files to
-# Mode: copy (default) or move ie. deleting files after succesful copy from source
+## program call
+# filemgr.py [OPTIONS] SOURCE TARGET
+
+## OPTIONS
+#
+# -D/ --database ARG    pointer to database file, the default is ./files.sqlite
+# -m/ --move    move files to target i.e. delete from source after successful copy
+# -k/ --keep-duplicates write duplicates instead of linking them - especially useful if the first copy is on a different target device
+#                       default behavior is to link duplicates or create a text file with a pointer to the first copy of the file
+
+## Parameters
+#
+# SOURCE: path from which to copy files from
+# TARGET: path to which to copy files to
+
+
+# setting default options
+DATABASE = "./files.sqlite"
+VERBOSE = 0
+MOVE = 0
+KEEPDUPLICATES = 0
+print_out(str(VERBOSE) + DATABASE)
+# import .env parameters
+
 # file db: DB with infos for file in TARGET
 
 # get file DB from user or config
+
+res=None
+db=None
+while not (res):
+  DATABASE = DATABASE if not db else db
+  usrInput = input("Do you want to use this database: " + cols.OKBLUE + DATABASE + cols.ENDC + "(y)es, no ")
+  usrInput = str(usrInput[0]).lower()
+  match usrInput:
+    case "y":
+        print_out("yay")
+        res = 1
+    case _:
+        db = input("Please provide a valid database file: ")
 
 # test if file DB exists or needs to be created
 
@@ -73,9 +107,9 @@
 # CREATE TABLE "devices" (
 # 	"id"	INTEGER UNIQUE,
 # 	"dev_serial"	TEXT NOT NULL,
-# 	"size"	INTEGER,
-# 	"space_used"	INTEGER,
-# 	"space_free"	INTEGER,
+# 	"size"	INTEGER DEFAULT 0,
+# 	"space_used"	INTEGER DEFAULT 0,
+# 	"space_free"	INTEGER DEFAULT 0,
 # 	PRIMARY KEY("id" AUTOINCREMENT)
 # );
 
@@ -104,11 +138,11 @@
 
 # CREATE TABLE "sessions" (
 # 	"id"	INTEGER UNIQUE,
-# 	"starting_time"	INTEGER,
-# 	"ending_time"	INTEGER,
-# 	"size_copied"	INTEGER,
-# 	"size_freed"	INTEGER,
-# 	"length"	INTEGER,
+# 	"starting_time"	INTEGER DEFAULT 0,
+# 	"ending_time"	INTEGER DEFAULT 0,
+# 	"size_copied"	INTEGER DEFAULT 0,
+# 	"size_freed"	INTEGER DEFAULT 0,
+# 	"length"	INTEGER DEFAULT 0,
 # 	"fk_users"	INTEGER,
 # 	"fk_devices"	INTEGER,
 # 	PRIMARY KEY("id" AUTOINCREMENT)

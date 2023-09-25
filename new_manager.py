@@ -10,8 +10,10 @@
 #### /desc ####
 
 
-# import debugging
+# importing custom functions
 from debugging import *
+from functions import *
+
 # argparse
 
 ## program call
@@ -42,18 +44,18 @@ print_out(str(VERBOSE) + DATABASE)
 
 # get file DB from user or config
 
-res=None
-db=None
-while not (res):
-  DATABASE = DATABASE if not db else db
-  usrInput = input("Do you want to use this database: " + cols.OKBLUE + DATABASE + cols.ENDC + "(y)es, no ")
-  usrInput = str(usrInput[0]).lower()
-  match usrInput:
-    case "y":
-        print_out("yay")
-        res = 1
-    case _:
-        db = input("Please provide a valid database file: ")
+#  res=None
+#  db=None
+#  while not (res):
+#    DATABASE = DATABASE if not db else db
+#    usrInput = input("Do you want to use this database: " + cols.OKBLUE + DATABASE + cols.ENDC + "(y)es, no ")
+#    usrInput = str(usrInput[0]).lower()
+#    match usrInput:
+#      case "y":
+#          print_out("yay")
+#          res = 1
+#      case _:
+#          db = input("Please provide a valid database file: ")
 
 # test if file DB exists or needs to be created
 
@@ -66,12 +68,15 @@ while not (res):
 # checksum: string sha256
 # date added: date time
 #
-# CREATE TABLE "checksums" (
-# 	"id"	INTEGER UNIQUE,
-# 	"checksum"	TEXT NOT NULL,
-# 	"date_added"	INTEGER DEFAULT 0,
-# 	PRIMARY KEY("id" AUTOINCREMENT)
-# );
+dbCreate = {} # initalizing dict
+
+dbCreate['checksums'] = 'CREATE TABLE "checksums" ( \
+"id" INTEGER UNIQUE, \
+"checksum" TEXT NOT NULL, \
+"date_added" INTEGER DEFAULT 0, \
+PRIMARY KEY("id" AUTOINCREMENT) \
+ );'
+
 
 ### table file info
 # |id|checksum_id|file name|file path|mime type id|file size|duplicate|duplicate id|target device id|session id|
@@ -84,19 +89,18 @@ while not (res):
 # session id: foreign key
 # target device id: foreign key
 #
-# CREATE TABLE "file_info" (
-# 	"id"	INTEGER UNIQUE,
-# 	"file_name"	TEXT NOT NULL,
-# 	"file_path"	TEXT NOT NULL,
-# 	"file_size"	INTEGER DEFAULT 0,
-# 	"duplicate"	INTEGER DEFAULT 0,
-# 	"fk_checksums"	INTEGER,
-# 	"fk_devices"	INTEGER,
-# 	"fk_mime-types"	INTEGER,
-# 	"fk_sessions"	INTEGER,
-# 	PRIMARY KEY("id" AUTOINCREMENT)
-# );
-
+dbCreate['file_info'] = 'CREATE TABLE "file_info" ( \
+  "id" INTEGER UNIQUE, \
+  "file_name" TEXT NOT NULL, \
+  "file_path" TEXT NOT NULL, \
+  "file_size" INTEGER DEFAULT 0, \
+  "duplicate" INTEGER DEFAULT 0, \
+  "fk_checksums" INTEGER, \
+  "fk_devices" INTEGER, \
+  "fk_mime-types" INTEGER, \
+  "fk_sessions" INTEGER, \
+  PRIMARY KEY("id" AUTOINCREMENT) \
+ );'
 ### table device
 # |id|device serial|space used|size|space free|
 # device serial: string
@@ -104,26 +108,26 @@ while not (res):
 # size: int in MByte
 # space free: int in MByte
 
-# CREATE TABLE "devices" (
-# 	"id"	INTEGER UNIQUE,
-# 	"dev_serial"	TEXT NOT NULL,
-# 	"size"	INTEGER DEFAULT 0,
-# 	"space_used"	INTEGER DEFAULT 0,
-# 	"space_free"	INTEGER DEFAULT 0,
-# 	PRIMARY KEY("id" AUTOINCREMENT)
-# );
+dbCreate['devices'] = 'CREATE TABLE "devices" (\
+  "id" INTEGER UNIQUE,\
+  "dev_serial" TEXT NOT NULL,\
+  "size" INTEGER DEFAULT 0,\
+  "space_used" INTEGER DEFAULT 0,\
+  "space_free" INTEGER DEFAULT 0,\
+  PRIMARY KEY("id" AUTOINCREMENT)\
+ );'
 
 ### table MIME type
 # |id|type name|type category|
 # type name: string
 # type category: string
 
-# CREATE TABLE "mime_types" (
-# 	"id"	INTEGER UNIQUE,
-# 	"name"	TEXT UNIQUE,
-# 	"category"	TEXT,
-# 	PRIMARY KEY("id" AUTOINCREMENT)
-# );
+dbCreate['mime_types'] = 'CREATE TABLE "mime_types" (\
+  "id" INTEGER UNIQUE,\
+  "name" TEXT UNIQUE,\
+  "category" TEXT,\
+  PRIMARY KEY("id" AUTOINCREMENT)\
+ );'
 
 ### table sessions
 # |id|start|ended|source device id|target device id|size|size copied|size freeed|
@@ -136,30 +140,31 @@ while not (res):
 # length: int in seconds
 # user: foreign key
 
-# CREATE TABLE "sessions" (
-# 	"id"	INTEGER UNIQUE,
-# 	"starting_time"	INTEGER DEFAULT 0,
-# 	"ending_time"	INTEGER DEFAULT 0,
-# 	"size_copied"	INTEGER DEFAULT 0,
-# 	"size_freed"	INTEGER DEFAULT 0,
-# 	"length"	INTEGER DEFAULT 0,
-# 	"fk_users"	INTEGER,
-# 	"fk_devices"	INTEGER,
-# 	PRIMARY KEY("id" AUTOINCREMENT)
-# );
+dbCreate['sessions'] = 'CREATE TABLE "sessions" (\
+  "id" INTEGER UNIQUE,\
+  "starting_time" INTEGER DEFAULT 0,\
+  "ending_time" INTEGER DEFAULT 0,\
+  "size_copied" INTEGER DEFAULT 0,\
+  "size_freed" INTEGER DEFAULT 0,\
+  "length" INTEGER DEFAULT 0,\
+  "fk_users" INTEGER,\
+  "fk_devices" INTEGER,\
+  PRIMARY KEY("id" AUTOINCREMENT)\
+ );'
 
 ### table user
 # |id|name|
 # name: string
 
-# CREATE TABLE "users" (
-# 	"id"	INTEGER UNIQUE,
-# 	"username"	TEXT UNIQUE,
-# 	"email"	TEXT,
-# 	"password"	TEXT,
-# 	PRIMARY KEY("id" AUTOINCREMENT)
-# );
+dbCreate['users'] = 'CREATE TABLE "users" (\
+  "id" INTEGER UNIQUE,\
+  "username" TEXT UNIQUE,\
+  "email" TEXT,\
+  "password" TEXT,\
+  PRIMARY KEY("id" AUTOINCREMENT)\
+ );'
 
+print(dbCreate['users'])
 ### test file DB for write and read operations
 
 #---------#

@@ -1,0 +1,9 @@
+#
+# Database file to store all infos and hashes in
+# DATABASE="./files.sqlite"
+#
+# Move files instead of copying. Will delete files in source path after successful copy (Default = 0)
+# MOVE=0
+#
+# Duplicates will be copied instead of linked ie. a file will be created instead of a link. If the target is different from the where the first backup resides on a file will be created
+# KEEPDUPLICATES=0

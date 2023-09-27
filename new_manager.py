@@ -14,6 +14,10 @@
 from debugging import *
 from functions import *
 
+# importing sys libs
+import dotenv
+from os import getenv
+
 # argparse
 
 ## program call
@@ -37,9 +41,30 @@ DATABASE = "./files.sqlite"
 VERBOSE = 0
 MOVE = 0
 KEEPDUPLICATES = 0
-print_out(str(VERBOSE) + DATABASE)
 # import .env parameters
 
+
+
+
+if __name__ == "__main__":
+
+  # Load the environment variables from the .env file
+  dotenv.load_dotenv()
+
+  """ GETTING DATABASE """
+  # Get Database Pointer from .env File
+  DATABASE = getenv("DATABASE")
+  # Override anything with Argument provided by user
+  args = parse_args()
+  if args.database:
+    DATABASE = args.database
+
+  """ Get Database from user"""
+  while not (path.exists(DATABASE)):
+    DATABASE = input("Please provide a valid path and name of the database file: ")
+
+  debugging("3x00001", DATABASE)
+  """ / GETTING DATABASE """
 # file db: DB with infos for file in TARGET
 
 # get file DB from user or config
